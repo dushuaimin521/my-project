@@ -6,7 +6,7 @@
         <el-input v-model="formData.username"></el-input>
       </el-form-item>
       <el-form-item label="密码">
-        <el-input type="password" v-model="formData.password"></el-input>
+        <el-input type="password" @keyup.enter.native="hanldeLogin" v-model="formData.password"></el-input>
       </el-form-item>
       <el-form-item>
         <el-button @click="hanldeLogin" class="btn" type="primary">登陆</el-button>
@@ -27,23 +27,36 @@ export default {
     };
   },
   methods: {
-    hanldeLogin() {
-      axios
-        .post('http://localhost:8888/api/private/v1/login', this.formData)
-        .then((response) => {
-          var status = response.data.meta.status;
-          var msg = response.data.meta.msg;
-          if (status === 200) {
-            this.$message.success(msg);
-            var token = response.data.data.token;
-            sessionStorage.setItem('token', token);
-          } else {
-            this.$message.error(msg);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    // hanldeLogin() {
+    //   axios
+    //     .post('http://localhost:8888/api/private/v1/login', this.formData)
+    //     .then((response) => {
+    //       var status = response.data.meta.status;
+    //       var msg = response.data.meta.msg;
+    //       if (status === 200) {
+    //         this.$message.success(msg);
+    //         var token = response.data.data.token;
+    //         sessionStorage.setItem('token', token);
+    //       } else {
+    //         this.$message.error(msg);
+    //       }
+    //     })
+    //     .catch((err) => {
+    //       console.log(err);
+    //     });
+    async hanldeLogin() {
+      var response = await axios.post('http://localhost:8888/api/private/v1/login', this.formData);
+      // var status = response.data.meta.status;
+      // var msg = response.data.meta.msg;
+      var { data: { meta: { status, msg } } } = response;
+      if (status === 200) {
+        this.$message.success(msg);
+        var token = response.data.data.token;
+        sessionStorage.setItem('token', token);
+        this.$router.push('/');
+      } else {
+        this.$message.error(msg);
+      }
     }
   }
 };
